@@ -10,6 +10,7 @@ import type LingxiPlugin from "../main";
 import { chatCompletion } from "../core/llm";
 import type { ChatMessage } from "../core/llm";
 import type { Citation } from "../core/rag";
+import { OrganizePanel } from "./organizePanel";
 
 export const CHAT_VIEW_TYPE = "lingxi-chat-view";
 
@@ -165,12 +166,12 @@ export class ChatView extends ItemView {
     this.bodyEl.empty();
     this.footerEl.toggleClass("is-hidden", this.activeTab !== "chat");
     if (this.activeTab !== "chat") {
-      const soon = this.bodyEl.createEl("div", { cls: "lingxi-soon" });
-      soon.setText(
-        this.activeTab === "organize"
-          ? this.plugin.t("tab.organize.soon")
-          : this.plugin.t("tab.integrate.soon"),
-      );
+      if (this.activeTab === "organize") {
+        new OrganizePanel(this.bodyEl, this.plugin).render();
+      } else {
+        const soon = this.bodyEl.createEl("div", { cls: "lingxi-soon" });
+        soon.setText(this.plugin.t("tab.integrate.soon"));
+      }
       this.messagesEl = null;
       return;
     }

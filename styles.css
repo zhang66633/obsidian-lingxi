@@ -206,3 +206,144 @@
   color: var(--text-normal);
   border-color: var(--interactive-accent);
 }
+
+/* 整理面板 */
+.lingxi-organize {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lingxi-org-current {
+  font-size: var(--font-ui-smallest);
+  color: var(--text-muted);
+  padding: 4px 6px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+.lingxi-section {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lingxi-section-title {
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.lingxi-section-desc {
+  font-size: var(--font-ui-smallest);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.lingxi-section-status {
+  font-size: var(--font-ui-smallest);
+  color: var(--text-muted);
+  padding: 2px 0;
+}
+
+.lingxi-org-row {
+  display: flex;
+  gap: 6px;
+}
+
+.lingxi-org-input {
+  flex: 1;
+  font-size: var(--font-ui-smallest);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.lingxi-mini-btn {
+  font-size: var(--font-ui-smallest);
+  padding: 4px 10px;
+  border-radius: 6px;
+  align-self: flex-start;
+}
+
+.lingxi-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.lingxi-chips {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.lingxi-result-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lingxi-result-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  text-align: left;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: var(--font-ui-smallest);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.lingxi-result-main:hover {
+  border-color: var(--interactive-accent);
+}
+
+.lingxi-result-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lingxi-score {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.lingxi-chip {
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-accent);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: var(--font-ui-smallest);
+  cursor: pointer;
+}
+
+.lingxi-chip:hover {
+  border-color: var(--interactive-accent);
+}
+
+.lingxi-chip.is-applied {
+  opacity: 0.5;
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.lingxi-mini-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
