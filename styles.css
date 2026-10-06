@@ -347,3 +347,73 @@
   opacity: 0.5;
   cursor: default;
 }
+
+/* 整合面板 */
+.lingxi-result-heading {
+  font-size: var(--font-ui-smallest);
+  font-weight: 600;
+  color: var(--text-normal);
+  margin-top: 4px;
+}
+
+.lingxi-result-list {
+  margin: 2px 0 4px;
+  padding-left: 18px;
+  font-size: var(--font-ui-smallest);
+  color: var(--text-normal);
+  line-height: 1.6;
+}
+
+.lingxi-draft {
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: var(--font-ui-smallest);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 8px;
+  margin: 4px 0;
+}
+
+/* 多选弹窗 */
+.lingxi-modal {
+  width: 520px;
+  max-width: 90vw;
+}
+
+.lingxi-picker-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  margin: 8px 0;
+  padding: 4px;
+}
+
+.lingxi-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+}
+
+.lingxi-picker-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+.lingxi-picker-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lingxi-modal-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

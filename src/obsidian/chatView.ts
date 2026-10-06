@@ -11,6 +11,7 @@ import { chatCompletion } from "../core/llm";
 import type { ChatMessage } from "../core/llm";
 import type { Citation } from "../core/rag";
 import { OrganizePanel } from "./organizePanel";
+import { IntegratePanel } from "./integratePanel";
 
 export const CHAT_VIEW_TYPE = "lingxi-chat-view";
 
@@ -165,21 +166,17 @@ export class ChatView extends ItemView {
     if (!this.bodyEl || !this.footerEl) return;
     this.bodyEl.empty();
     this.footerEl.toggleClass("is-hidden", this.activeTab !== "chat");
-    if (this.activeTab !== "chat") {
-      if (this.activeTab === "organize") {
-        new OrganizePanel(this.bodyEl, this.plugin).render();
-      } else {
-        const soon = this.bodyEl.createEl("div", { cls: "lingxi-soon" });
-        soon.setText(this.plugin.t("tab.integrate.soon"));
+    if (this.activeTab === "organize") {
+      new OrganizePanel(this.bodyEl, this.plugin).render();
+    } else if (this.activeTab === "integrate") {
+      new IntegratePanel(this.bodyEl, this.plugin).render();
+    } else {
+      this.messagesEl = this.bodyEl.createEl("div", { cls: "lingxi-messages" });
+      for (const m of this.rendered) {
+        this.appendMessageEl(m.role, m.content, m.citations);
       }
-      this.messagesEl = null;
-      return;
+      this.bodyEl.scrollTop = this.bodyEl.scrollHeight;
     }
-    this.messagesEl = this.bodyEl.createEl("div", { cls: "lingxi-messages" });
-    for (const m of this.rendered) {
-      this.appendMessageEl(m.role, m.content, m.citations);
-    }
-    this.bodyEl.scrollTop = this.bodyEl.scrollHeight;
   }
 
   private appendMessageEl(role: ChatMessage["role"], content: string, citations?: Citation[]): void {
