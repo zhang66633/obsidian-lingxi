@@ -24,6 +24,10 @@ export interface LingxiSettings {
   autoOrganizeFolders: string[];
   /** 语义相关度阈值（0-1），超过即视为相关 */
   similarityThreshold: number;
+  /** RAG 上下文 token 预算（大于会话历史与系统提示） */
+  contextBudgetTokens: number;
+  /** 调试：Obsidian 启动时自动打开侧边栏（真机冒烟测试用） */
+  autoOpenSidebar: boolean;
 }
 
 export const DEFAULT_SETTINGS: LingxiSettings = {
@@ -39,6 +43,8 @@ export const DEFAULT_SETTINGS: LingxiSettings = {
   excludeFolders: [".obsidian", ".trash", ".smart-env", ".git"],
   autoOrganizeFolders: [],
   similarityThreshold: 0.82,
+  contextBudgetTokens: 12000,
+  autoOpenSidebar: false,
 };
 
 function asStringArray(value: unknown, fallback: string[]): string[] {
@@ -49,6 +55,10 @@ function asStringArray(value: unknown, fallback: string[]): string[] {
 
 function asNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function asBoolean(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
 }
 
 /**
@@ -71,6 +81,11 @@ export function mergeSettings(loaded: unknown): LingxiSettings {
     excludeFolders: asStringArray(l.excludeFolders, DEFAULT_SETTINGS.excludeFolders),
     autoOrganizeFolders: asStringArray(l.autoOrganizeFolders, DEFAULT_SETTINGS.autoOrganizeFolders),
     similarityThreshold: Math.max(0, Math.min(1, asNumber(l.similarityThreshold, DEFAULT_SETTINGS.similarityThreshold))),
+    contextBudgetTokens: Math.max(
+      1000,
+      Math.min(60000, asNumber(l.contextBudgetTokens, DEFAULT_SETTINGS.contextBudgetTokens)),
+    ),
+    autoOpenSidebar: asBoolean(l.autoOpenSidebar, DEFAULT_SETTINGS.autoOpenSidebar),
   };
 }
 

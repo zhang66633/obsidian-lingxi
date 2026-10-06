@@ -1,22 +1,31 @@
 /**
  * 灵犀 Lingxi — 侧边栏视图（ItemView）
- * Phase 1：对话外壳 + 语言切换 + 上下文范围（当前笔记 / 选中内容）。
- * 全库检索（RAG）与引用角标在 Phase 2 接入；整理 / 整合 Tab 为占位。
+ * Phase 2：三种上下文范围（当前笔记 / 选中内容 / 全库检索），
+ * 全库模式下回答带引用角标，点击来源卡片直达笔记。
+ * 整理 / 整合 Tab 仍为占位（Phase 3/4）。
  */
 
 import { ItemView, WorkspaceLeaf, MarkdownView, Notice } from "obsidian";
 import type LingxiPlugin from "../main";
 import { chatCompletion } from "../core/llm";
 import type { ChatMessage } from "../core/llm";
+import type { Citation } from "../core/rag";
 
 export const CHAT_VIEW_TYPE = "lingxi-chat-view";
 
 type Tab = "chat" | "organize" | "integrate";
-type ContextMode = "note" | "selection";
+type ContextMode = "note" | "selection" | "vault";
+
+interface RenderedMessage {
+  role: ChatMessage["role"];
+  content: string;
+  citations?: Citation[];
+}
 
 export class ChatView extends ItemView {
   private plugin: LingxiPlugin;
   private history: ChatMessage[] = [];
+  private rendered: RenderedMessage[] = [];
   private busy = false;
   private activeTab: Tab = "chat";
   private contextMode: ContextMode = "note";
@@ -66,7 +75,9 @@ export class ChatView extends ItemView {
     gear.setText("⚙");
     gear.setAttribute("aria-label", this.plugin.t("view.openSettings"));
     gear.addEventListener("click", () => {
-      const setting = (this.app as unknown as { setting: { open: () => void; openTabById: (id: string) => void } }).setting;
+      const setting = (
+        this.app as unknown as { setting: { open: () => void; openTabById: (id: string) => void } }
+      ).setting;
       setting.open();
       setting.openTabById("lingxi");
     });
@@ -108,15 +119,11 @@ export class ChatView extends ItemView {
     const sel = row.createEl("select", { cls: "lingxi-context-select" });
     sel.createEl("option", { text: this.plugin.t("context.note"), value: "note" });
     sel.createEl("option", { text: this.plugin.t("context.selection"), value: "selection" });
-    const optVault = sel.createEl("option", {
-      text: `${this.plugin.t("context.vault")}（Phase 2）`,
-      value: "vault",
-    });
-    optVault.disabled = true;
+    sel.createEl("option", { text: this.plugin.t("context.vault"), value: "vault" });
     sel.value = this.contextMode;
     sel.addEventListener("change", () => {
       const v = sel.value;
-      this.contextMode = v === "selection" ? "selection" : "note";
+      this.contextMode = v === "vault" ? "vault" : v === "selection" ? "selection" : "note";
     });
 
     const inputRow = footer.createEl("div", { cls: "lingxi-input-row" });
@@ -168,13 +175,13 @@ export class ChatView extends ItemView {
       return;
     }
     this.messagesEl = this.bodyEl.createEl("div", { cls: "lingxi-messages" });
-    for (const m of this.history) {
-      this.appendMessageEl(m.role, m.content);
+    for (const m of this.rendered) {
+      this.appendMessageEl(m.role, m.content, m.citations);
     }
     this.bodyEl.scrollTop = this.bodyEl.scrollHeight;
   }
 
-  private appendMessageEl(role: ChatMessage["role"], content: string): void {
+  private appendMessageEl(role: ChatMessage["role"], content: string, citations?: Citation[]): void {
     if (!this.messagesEl || !this.bodyEl) return;
     const isUser = role === "user";
     const bubble = this.messagesEl.createEl("div", {
@@ -185,11 +192,34 @@ export class ChatView extends ItemView {
       text: isUser ? this.plugin.t("chat.you") : this.plugin.t("chat.lingxi"),
     });
     bubble.createEl("div", { cls: "lingxi-msg-text", text: content });
+
+    if (!isUser && citations && citations.length > 0) {
+      this.renderCitations(bubble, citations);
+    }
     this.bodyEl.scrollTop = this.bodyEl.scrollHeight;
   }
 
-  /** 取当前上下文块：选中文字或当前笔记全文（截断到 2 万字符保护预算） */
-  private async buildContextBlock(): Promise<string> {
+  /** 引用卡片：[n] 笔记名 › 标题，点击打开对应笔记 */
+  private renderCitations(bubble: HTMLElement, citations: Citation[]): void {
+    const indexer = this.plugin.indexer;
+    const box = bubble.createEl("div", { cls: "lingxi-citations" });
+    box.createEl("div", { cls: "lingxi-citations-title", text: this.plugin.t("chat.citations") });
+    for (const c of citations) {
+      const chunk = indexer?.index.getChunk(c.chunkId);
+      const chip = box.createEl("button", { cls: "lingxi-cite-chip" });
+      const label = chunk
+        ? `[${c.index}] ${chunk.path}${chunk.heading ? ` › ${chunk.heading}` : ""}`
+        : `[${c.index}]`;
+      chip.setText(label);
+      chip.setAttribute("title", this.plugin.t("rag.openSource"));
+      chip.addEventListener("click", () => {
+        if (!chunk) return;
+        void this.app.workspace.openLinkText(chunk.path.replace(/\.md$/, ""), "", false);
+      });
+    }
+  }
+
+  private async buildNoteContext(): Promise<string> {
     if (this.contextMode === "selection") {
       const view = this.app.workspace.getActiveViewOfType(MarkdownView);
       const sel = view?.editor.getSelection() ?? "";
@@ -202,11 +232,11 @@ export class ChatView extends ItemView {
     return `\n\n【${this.plugin.t("context.note")}: ${file.path}】\n${text.slice(0, 20000)}`;
   }
 
-  private setBusy(busy: boolean): void {
+  private setBusy(busy: boolean, statusText?: string): void {
     this.busy = busy;
     if (this.sendBtn) this.sendBtn.disabled = busy;
     if (this.inputEl) this.inputEl.disabled = busy;
-    if (this.statusEl) this.statusEl.setText(busy ? this.plugin.t("chat.thinking") : "");
+    if (this.statusEl) this.statusEl.setText(statusText ?? (busy ? this.plugin.t("chat.thinking") : ""));
   }
 
   private async onSend(): Promise<void> {
@@ -222,13 +252,47 @@ export class ChatView extends ItemView {
       return;
     }
 
+    this.rendered.push({ role: "user", content: question });
     this.history.push({ role: "user", content: question });
     this.appendMessageEl("user", question);
     if (this.inputEl) this.inputEl.value = "";
-    this.setBusy(true);
+
+    let citations: Citation[] = [];
+    let contextBlock = "";
     try {
-      const contextBlock = await this.buildContextBlock();
-      const prior = this.history.slice(-9, -1); // 最近 8 条历史（不含本轮问题）
+      if (this.contextMode === "vault") {
+        // 索引没建好就先建（空库时同步等待，界面上给状态）
+        const stats = this.plugin.indexer?.stats();
+        if (!stats || stats.vectors === 0) {
+          this.setBusy(true, this.plugin.t("rag.rebuilding"));
+          await this.plugin.rebuildIndex("manual");
+        }
+        const indexer = this.plugin.indexer;
+        if (!indexer || indexer.stats().vectors === 0) {
+          new Notice(this.plugin.t("rag.indexEmpty"));
+        } else {
+          this.setBusy(true, this.plugin.t("chat.thinking"));
+          const result = await indexer.retrieve(question);
+          citations = result.context.citations;
+          if (result.context.prompt !== "") {
+            contextBlock = `\n\n${result.context.prompt}`;
+          } else {
+            new Notice(this.plugin.t("rag.noHits"));
+          }
+        }
+      } else {
+        contextBlock = await this.buildNoteContext();
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.appendMessageEl("assistant", `${this.plugin.t("chat.failed")}: ${msg}`);
+      this.setBusy(false);
+      return;
+    }
+
+    this.setBusy(true, this.plugin.t("chat.thinking"));
+    try {
+      const prior = this.history.slice(-9, -1);
       const messages: ChatMessage[] = [
         { role: "system", content: this.plugin.systemPrompt() },
         ...prior,
@@ -245,7 +309,8 @@ export class ChatView extends ItemView {
         { temperature: settings.temperature, maxTokens: settings.maxOutputTokens },
       );
       this.history.push({ role: "assistant", content: answer });
-      this.appendMessageEl("assistant", answer);
+      this.rendered.push({ role: "assistant", content: answer, citations });
+      this.appendMessageEl("assistant", answer, citations);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       this.appendMessageEl("assistant", `${this.plugin.t("chat.failed")}: ${msg}`);

@@ -172,3 +172,37 @@
   color: var(--text-muted);
   min-height: 1em;
 }
+
+/* 引用卡片 */
+.lingxi-citations {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--background-modifier-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lingxi-citations-title {
+  font-size: var(--font-ui-smallest);
+  color: var(--text-muted);
+}
+
+.lingxi-cite-chip {
+  text-align: left;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: var(--font-ui-smallest);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lingxi-cite-chip:hover {
+  color: var(--text-normal);
+  border-color: var(--interactive-accent);
+}

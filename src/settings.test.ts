@@ -28,12 +28,14 @@ describe("mergeSettings", () => {
     expect(mergeSettings({ baseUrl: "   " }).baseUrl).toBe(DEFAULT_SETTINGS.baseUrl);
   });
 
-  it("数值钳制：topK 1..20，temperature 0..2，similarity 0..1", () => {
+  it("数值钳制：topK 1..20，temperature 0..2，similarity 0..1，contextBudget 1000..60000", () => {
     expect(mergeSettings({ topK: 0 }).topK).toBe(1);
     expect(mergeSettings({ topK: 99 }).topK).toBe(20);
     expect(mergeSettings({ temperature: 5 }).temperature).toBe(2);
     expect(mergeSettings({ temperature: -1 }).temperature).toBe(0);
     expect(mergeSettings({ similarityThreshold: 1.5 }).similarityThreshold).toBe(1);
+    expect(mergeSettings({ contextBudgetTokens: 10 }).contextBudgetTokens).toBe(1000);
+    expect(mergeSettings({ contextBudgetTokens: 999999 }).contextBudgetTokens).toBe(60000);
   });
 
   it("非法 language / 非数组字段回退默认", () => {

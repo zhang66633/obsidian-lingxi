@@ -65,10 +65,22 @@ const zh: Record<string, string> = {
   "settings.autoFolders": "半自动整理文件夹",
   "settings.autoFolders.desc": "白名单内新笔记可自动打标签/插双链；其余永远只出建议",
   "settings.similarity": "相关度阈值",
+  "settings.contextBudget": "RAG 上下文预算",
+  "settings.contextBudget.desc": "检索片段最多占多少 token（1000–60000），超出按分数舍弃",
   "settings.saveNotice": "设置已保存",
-
+  "settings.autoOpen": "启动时自动打开侧边栏（调试）",
   "err.noApiKey": "请先在设置里填写 API Key",
   "err.emptyQuestion": "先输入问题",
+
+  "rag.indexing": "正在建立索引 {done}/{total}…",
+  "rag.indexReady": "索引就绪：{files} 篇 · {chunks} 块",
+  "rag.indexEmpty": "索引为空：请先在设置填写 API Key，并检查排除文件夹。",
+  "rag.rebuilding": "正在重建索引…",
+  "rag.noHits": "库里没找到足够相关的片段，本次回答未引用笔记。",
+  "rag.openSource": "打开来源",
+  "rag.context.prefix": "以下是与问题相关的笔记片段（回答请用 [编号] 标注引用来源；没有合适片段就直说）：",
+  "rag.firstRunHint": "灵犀已就绪。全库问答前先建一次索引：命令面板 → 重建灵犀索引。",
+  "cmd.reindex": "重建灵犀索引",
 };
 
 const en: Record<string, string> = {
@@ -129,10 +141,23 @@ const en: Record<string, string> = {
   "settings.autoFolders": "Auto-organize folders",
   "settings.autoFolders.desc": "New notes inside the whitelist may be auto-tagged / auto-linked; everything else stays suggestion-only",
   "settings.similarity": "Similarity threshold",
+  "settings.contextBudget": "RAG context budget",
+  "settings.contextBudget.desc": "Max tokens for retrieved excerpts (1000–60000); lower-scored ones are dropped",
   "settings.saveNotice": "Settings saved",
+  "settings.autoOpen": "Open sidebar on load (debug)",
 
   "err.noApiKey": "Set your API key in settings first",
   "err.emptyQuestion": "Type a question first",
+
+  "rag.indexing": "Building index {done}/{total}…",
+  "rag.indexReady": "Index ready: {files} notes · {chunks} chunks",
+  "rag.indexEmpty": "Index is empty: set your API key in settings and check excluded folders.",
+  "rag.rebuilding": "Rebuilding index…",
+  "rag.noHits": "Nothing relevant enough in the vault; this answer cites no notes.",
+  "rag.openSource": "Open source",
+  "rag.context.prefix": "The following note excerpts are relevant (cite them as [n]; say so if none fit):",
+  "rag.firstRunHint": "Lingxi is ready. Build the index once before vault-wide chat: Command palette → Rebuild Lingxi index.",
+  "cmd.reindex": "Rebuild Lingxi index",
 };
 
 export const DICT_ZH = zh;

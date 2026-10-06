@@ -172,5 +172,25 @@ export class LingxiSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           }),
       );
+    new Setting(containerEl)
+      .setName(t("settings.contextBudget"))
+      .setDesc(t("settings.contextBudget.desc"))
+      .addText((txt) =>
+        txt.setValue(String(s.contextBudgetTokens)).onChange(async (v) => {
+          const n = Number(v);
+          if (Number.isFinite(n) && n >= 1000 && n <= 60000) {
+            s.contextBudgetTokens = Math.floor(n);
+            await this.plugin.saveSettings();
+          }
+        }),
+      );
+    new Setting(containerEl)
+      .setName(t("settings.autoOpen"))
+      .addToggle((tg) =>
+        tg.setValue(s.autoOpenSidebar).onChange(async (v) => {
+          s.autoOpenSidebar = v;
+          await this.plugin.saveSettings();
+        }),
+      );
   }
 }
