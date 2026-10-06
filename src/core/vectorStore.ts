@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — 向量缓存（纯 TS）
+ * 希XI — 向量缓存（纯 TS）
  *
  * 为什么本地存 base64(Float32)：qwen3-embedding-8b 维度未知（等首次调用确认），
  * Float32 细节无损；base64 比 JSON 数字数组小 4 倍以上，写盘/读盘都快。

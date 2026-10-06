@@ -1,7 +1,7 @@
 {
-	"id": "lingxi",
-	"name": "灵犀 Lingxi",
-	"version": "0.3.1",
+	"id": "xi-qwen",
+	"name": "希XI",
+	"version": "0.4.0",
 	"minAppVersion": "1.13.0",
 	"description": "Bilingual Qwen assistant that reads your vault: understand, organize, and integrate your notes.",
 	"author": "Zhe",

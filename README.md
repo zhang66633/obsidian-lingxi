@@ -1,4 +1,4 @@
-# 灵犀 Lingxi
+# 希XI
 
 **A bilingual (中文 / English) Qwen assistant that lives inside your Obsidian vault — understand, organize, and integrate your notes.**
 
@@ -6,7 +6,7 @@
 > 回答带引用角标，点击直达原文；整理只出建议（或在白名单文件夹内半自动写入），
 > 永不静默修改你的笔记。
 
-![Lingxi settings](images/docs-settings.png)
+![Xi settings](images/docs-settings.png)
 
 ## What it does
 
@@ -14,7 +14,7 @@ Three tabs in one sidebar panel:
 
 | Tab | Tools | Writes to your notes? |
 |---|---|---|
-| **Chat 对话** | Multi-session chat (new / switch / rename / delete, survives restarts; each session remembers its own context scope); vault-wide Q&A with `[1][2]` citation chips that jump to the source note and section; per-note anatomy (summary / key concepts / open questions); selection "Ask Lingxi" without leaving the note | No |
+| **Chat 对话** | Multi-session chat (new / switch / rename / delete, survives restarts; each session remembers its own context scope); vault-wide Q&A with `[1][2]` citation chips that jump to the source note and section; per-note anatomy (summary / key concepts / open questions); selection "Ask Xi" without leaving the note | No |
 | **Organize 整理** | Related notes (similarity-scored, one-click `[[link]]`), semantic search (chunk-level hits), tag suggestions (prefers your existing tag vocabulary), near-duplicate detection | Tag suggestions only — auto inside whitelisted folders, one click to apply elsewhere |
 | **Integrate 整合** | Compare 2–10 notes (consensus / divergence / complementary), merge notes into a structured draft with per-point sources, knowledge-gap analysis ("what is my vault missing to answer this?") | Only when you click "create note" |
 
@@ -30,24 +30,24 @@ All UI strings are fully bilingual — switch language in the sidebar header or 
 
 ## Install
 
-**Community plugin store:** search for `灵犀` or `Lingxi` after the submission is merged.
+**Community plugin store:** search for `希XI` or `Xi` after the submission is merged.
 
 **Manual:** copy `main.js`, `manifest.json`, and `styles.css` into
-`<your vault>/.obsidian/plugins/lingxi/`, then enable the plugin in
+`<your vault>/.obsidian/plugins/xi-qwen/`, then enable the plugin in
 Settings → Community plugins.
 
 **Beta via BRAT:** paste this repo URL into the BRAT plugin.
 
 ## First run
 
-1. Settings → 灵犀 Lingxi → paste your API key (stored locally in `data.json`, never leaves your machine except to your endpoint).
-2. Command palette → **Rebuild Lingxi index** (one-time; afterwards it syncs incrementally as you edit).
+1. Settings → 希XI → paste your API key (stored locally in `data.json`, never leaves your machine except to your endpoint).
+2. Command palette → **Rebuild Xi index** (one-time; afterwards it syncs incrementally as you edit).
 3. Open the sidebar (ribbon icon) → set context to **全库检索 / Whole vault** → ask away.
 
 ## Privacy
 
 - Notes are sent **only** to the endpoint you configure — there is no third-party service, no telemetry, no account.
-- The embedding index is cached locally in `.obsidian/plugins/lingxi/cache.json`.
+- The embedding index is cached locally in `.obsidian/plugins/xi-qwen/cache.json`.
 - The plugin never edits notes silently: outside your whitelisted "auto-organize" folders every change is a suggestion you apply yourself.
 
 ## Development
@@ -69,7 +69,7 @@ MIT © Zhe
 
 ## 中文说明
 
-**灵犀 Lingxi** 是一个住在 Obsidian 侧边栏里的双语 Qwen 助手，分三个标签页：
+**希XI** 是一个住在 Obsidian 侧边栏里的双语 Qwen 助手，分三个标签页：
 
 - **对话**：多会话管理（新建/切换/重命名/删除，重启后恢复，每个会话记住自己的上下文范围）；
   全库问答，回答带 `[1][2]` 引用角标，点击直达来源笔记与段落；

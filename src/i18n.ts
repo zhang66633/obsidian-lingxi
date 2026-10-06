@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — i18n 双语词典与切换器
+ * 希XI — i18n 双语词典与切换器
  * 硬约定：zh / en 两个字典的 key 集合必须完全一致（有单测强制校验）。
  * 插值语法：{name}，如 t("chat.citationsCount", { n: 3 })
  */
@@ -8,13 +8,13 @@ export type Lang = "zh" | "en";
 export type LangMode = Lang | "auto";
 
 const zh: Record<string, string> = {
-  "app.name": "灵犀 Lingxi",
-  "ribbon.tooltip": "打开灵犀侧边栏",
-  "cmd.openSidebar": "打开灵犀侧边栏",
-  "cmd.askSelection": "问灵犀：选中文字",
-  "cmd.summarizeNote": "灵犀：理解当前笔记",
+  "app.name": "希XI",
+  "ribbon.tooltip": "打开希XI侧边栏",
+  "cmd.openSidebar": "打开希XI侧边栏",
+  "cmd.askSelection": "问希XI：选中文字",
+  "cmd.summarizeNote": "希XI：理解当前笔记",
 
-  "view.title": "灵犀 Lingxi",
+  "view.title": "希XI",
   "view.switchLang": "Switch to English",
   "view.openSettings": "打开设置",
 
@@ -29,7 +29,7 @@ const zh: Record<string, string> = {
   "chat.thinking": "思考中…",
   "chat.failed": "请求失败",
   "chat.you": "你",
-  "chat.lingxi": "灵犀",
+  "chat.lingxi": "希XI",
   "chat.citations": "引用来源",
   "chat.noCitation": "（本次回答未引用笔记）",
   "chat.retry": "重试",
@@ -40,7 +40,7 @@ const zh: Record<string, string> = {
   "context.note": "当前笔记",
   "context.selection": "选中内容",
 
-  "settings.title": "灵犀 Lingxi",
+  "settings.title": "希XI",
   "settings.language": "界面语言",
   "settings.language.auto": "跟随 Obsidian",
   "settings.language.zh": "中文",
@@ -79,8 +79,8 @@ const zh: Record<string, string> = {
   "rag.noHits": "库里没找到足够相关的片段，本次回答未引用笔记。",
   "rag.openSource": "打开来源",
   "rag.context.prefix": "以下是与问题相关的笔记片段（回答请用 [编号] 标注引用来源；没有合适片段就直说）：",
-  "rag.firstRunHint": "灵犀已就绪。全库问答前先建一次索引：命令面板 → 重建灵犀索引。",
-  "cmd.reindex": "重建灵犀索引",
+  "rag.firstRunHint": "希XI已就绪。全库问答前先建一次索引：命令面板 → 重建希XI索引。",
+  "cmd.reindex": "重建希XI索引",
 
   "organize.related": "相关笔记",
   "organize.related.hint": "基于当前笔记的语义匹配（需要先建索引）",
@@ -141,13 +141,13 @@ const zh: Record<string, string> = {
 };
 
 const en: Record<string, string> = {
-  "app.name": "Lingxi",
-  "ribbon.tooltip": "Open Lingxi sidebar",
-  "cmd.openSidebar": "Open Lingxi sidebar",
-  "cmd.askSelection": "Ask Lingxi about selection",
-  "cmd.summarizeNote": "Lingxi: Understand current note",
+  "app.name": "Xi",
+  "ribbon.tooltip": "Open Xi sidebar",
+  "cmd.openSidebar": "Open Xi sidebar",
+  "cmd.askSelection": "Ask Xi about selection",
+  "cmd.summarizeNote": "Xi: Understand current note",
 
-  "view.title": "Lingxi",
+  "view.title": "Xi",
   "view.switchLang": "切换为中文",
   "view.openSettings": "Open settings",
 
@@ -162,7 +162,7 @@ const en: Record<string, string> = {
   "chat.thinking": "Thinking…",
   "chat.failed": "Request failed",
   "chat.you": "You",
-  "chat.lingxi": "Lingxi",
+  "chat.lingxi": "Xi",
   "chat.citations": "Sources",
   "chat.noCitation": "(no note cited in this answer)",
   "chat.retry": "Retry",
@@ -173,7 +173,7 @@ const en: Record<string, string> = {
   "context.note": "Current note",
   "context.selection": "Selection",
 
-  "settings.title": "Lingxi",
+  "settings.title": "Xi",
   "settings.language": "Interface language",
   "settings.language.auto": "Follow Obsidian",
   "settings.language.zh": "中文",
@@ -213,8 +213,8 @@ const en: Record<string, string> = {
   "rag.noHits": "Nothing relevant enough in the vault; this answer cites no notes.",
   "rag.openSource": "Open source",
   "rag.context.prefix": "The following note excerpts are relevant (cite them as [n]; say so if none fit):",
-  "rag.firstRunHint": "Lingxi is ready. Build the index once before vault-wide chat: Command palette → Rebuild Lingxi index.",
-  "cmd.reindex": "Rebuild Lingxi index",
+  "rag.firstRunHint": "Xi is ready. Build the index once before vault-wide chat: Command palette → Rebuild Xi index.",
+  "cmd.reindex": "Rebuild Xi index",
 
   "organize.related": "Related notes",
   "organize.related.hint": "Semantic matches for the current note (index required)",

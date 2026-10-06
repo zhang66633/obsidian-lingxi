@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — LLM / Embedding 客户端（纯逻辑，零 Obsidian 依赖）
+ * 希XI — LLM / Embedding 客户端（纯逻辑，零 Obsidian 依赖）
  *
  * 网关为 OpenAI 兼容 /v1（学校网关 token.nau.edu.cn）。
  * 传输经 Transport 接口注入：Obsidian 侧用 requestUrl（免 CORS，见 D3），

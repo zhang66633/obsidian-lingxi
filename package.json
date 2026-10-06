@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-lingxi",
+	"name": "xi-qwen",
 	"version": "0.1.0",
-	"description": "灵犀 Lingxi — 双语 Qwen 笔记助手：理解 / 整理 / 整合你的 Obsidian 库",
+	"description": "希XI — 双语 Qwen 笔记助手：理解 / 整理 / 整合你的 Obsidian 库",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {

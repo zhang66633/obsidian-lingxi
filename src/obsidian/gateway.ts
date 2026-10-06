@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — Obsidian 侧 HTTP 传输实现
+ * 希XI — Obsidian 侧 HTTP 传输实现
  * 用 requestUrl（Electron 层）而不是 fetch：学校网关不返回 CORS 头，
  * 渲染层 fetch 会被拦截（docs/01-决策记录.md D3）。
  */

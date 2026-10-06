@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — 侧边栏视图（ItemView）
+ * 希XI — 侧边栏视图（ItemView）
  * Phase 5：会话管理（多会话/切换/重命名/删除/重启恢复）接入。
  */
 
@@ -14,7 +14,7 @@ import { OrganizePanel } from "./organizePanel";
 import { IntegratePanel } from "./integratePanel";
 import { RenameModal } from "./renameModal";
 
-export const CHAT_VIEW_TYPE = "lingxi-chat-view";
+export const CHAT_VIEW_TYPE = "xi-chat-view";
 
 type Tab = "chat" | "organize" | "integrate";
 type ContextMode = "note" | "selection" | "vault";
@@ -81,7 +81,7 @@ export class ChatView extends ItemView {
         this.app as unknown as { setting: { open: () => void; openTabById: (id: string) => void } }
       ).setting;
       setting.open();
-      setting.openTabById("lingxi");
+      setting.openTabById("xi-qwen");
     });
 
     /* ---- 会话栏 ---- */

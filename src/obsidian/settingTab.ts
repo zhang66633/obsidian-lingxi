@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — 设置页
+ * 希XI — 设置页
  */
 
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";

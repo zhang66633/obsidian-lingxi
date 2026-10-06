@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — Obsidian 侧 VaultPort 实现
+ * 希XI — Obsidian 侧 VaultPort 实现
  * 缓存落在插件目录：.obsidian/plugins/lingxi/cache.json
  */
 

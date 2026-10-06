@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — 插件入口
+ * 希XI — 插件入口
  */
 
 import { Plugin, Notice, TAbstractFile } from "obsidian";
@@ -16,7 +16,7 @@ import { ChatView, CHAT_VIEW_TYPE } from "./obsidian/chatView";
 import { LingxiSettingTab } from "./obsidian/settingTab";
 
 const SYNC_DEBOUNCE_MS = 3000;
-const SESSIONS_PATH = ".obsidian/plugins/lingxi/sessions.json";
+const SESSIONS_PATH = ".obsidian/plugins/xi-qwen/sessions.json";
 
 export default class LingxiPlugin extends Plugin {
   settings: LingxiSettings = { ...DEFAULT_SETTINGS };
@@ -234,9 +234,9 @@ export default class LingxiPlugin extends Plugin {
   /** 系统提示（随语言切换） */
   systemPrompt(): string {
     return this.i18n.current === "zh"
-      ? "你是灵犀，一个住在 Obsidian 里的双语笔记助手。回答基于用户提供的笔记内容，" +
+      ? "你是希XI，一个住在 Obsidian 里的双语笔记助手。回答基于用户提供的笔记内容，" +
         "不确定就明说，不要编造引用；用简洁的中文回答。"
-      : "You are Lingxi, a bilingual note assistant living inside Obsidian. " +
+      : "You are Xi, a bilingual note assistant living inside Obsidian. " +
         "Answer from the provided note content, say when unsure, never invent citations; reply concisely.";
   }
 

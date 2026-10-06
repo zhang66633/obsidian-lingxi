@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — 库级索引编排（纯 TS，零 Obsidian 依赖）
+ * 希XI — 库级索引编排（纯 TS，零 Obsidian 依赖）
  *
  * 职责：VaultPort 拿文件 → NoteIndex 增量切块 → 缺向量的 chunk 调 embedding →
  * 失效向量清理 → 缓存落盘；检索时向量化问题后走 RAG。

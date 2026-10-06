@@ -1,5 +1,5 @@
 /**
- * 灵犀 Lingxi — 整理面板（Obsidian 侧 UI）
+ * 希XI — 整理面板（Obsidian 侧 UI）
  *
  * 半自动写权限语义（哲的选择，docs D4）：
  * 当前笔记位于 autoOrganizeFolders 白名单内 → 标签建议直接应用；
