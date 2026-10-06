@@ -1,0 +1,174 @@
+/* 灵犀 Lingxi — 样式
+   原则：尽量复用 Obsidian 原生 CSS 变量，保证跟随用户主题；浅深两主题通用。 */
+
+.lingxi-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+}
+
+.lingxi-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lingxi-title {
+  font-weight: 600;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  flex: 1;
+}
+
+.lingxi-icon-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--font-ui-smaller);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.lingxi-icon-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.lingxi-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 12px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lingxi-tab {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: var(--font-ui-smaller);
+  border-radius: 6px 6px 0 0;
+  border-bottom: 2px solid transparent;
+}
+
+.lingxi-tab:hover {
+  color: var(--text-normal);
+}
+
+.lingxi-tab.is-active {
+  color: var(--text-normal);
+  border-bottom-color: var(--interactive-accent);
+  font-weight: 600;
+}
+
+.lingxi-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+}
+
+.lingxi-soon {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  text-align: center;
+  padding: 40px 12px;
+  line-height: 1.6;
+}
+
+.lingxi-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lingxi-msg {
+  max-width: 92%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: var(--font-ui-smaller);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.lingxi-msg.is-user {
+  align-self: flex-end;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.lingxi-msg.is-assistant {
+  align-self: flex-start;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.lingxi-msg-who {
+  font-size: var(--font-ui-smallest);
+  opacity: 0.65;
+  margin-bottom: 4px;
+}
+
+.lingxi-footer {
+  border-top: 1px solid var(--background-modifier-border);
+  padding: 8px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lingxi-footer.is-hidden {
+  display: none;
+}
+
+.lingxi-context-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lingxi-context-label {
+  font-size: var(--font-ui-smallest);
+  color: var(--text-muted);
+}
+
+.lingxi-context-select {
+  flex: 1;
+  font-size: var(--font-ui-smallest);
+}
+
+.lingxi-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.lingxi-input {
+  flex: 1;
+  resize: none;
+  font-size: var(--font-ui-smaller);
+  line-height: 1.5;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.lingxi-send {
+  white-space: nowrap;
+  font-size: var(--font-ui-smaller);
+}
+
+.lingxi-status {
+  font-size: var(--font-ui-smallest);
+  color: var(--text-muted);
+  min-height: 1em;
+}

@@ -1,0 +1,29 @@
+{
+	"name": "obsidian-lingxi",
+	"version": "0.1.0",
+	"description": "灵犀 Lingxi — 双语 Qwen 笔记助手：理解 / 整理 / 整合你的 Obsidian 库",
+	"main": "main.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [
+		"obsidian",
+		"qwen",
+		"rag",
+		"bilingual",
+		"notes"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^22.15.17",
+		"esbuild": "0.25.5",
+		"obsidian": "1.13.1",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.4"
+	}
+}
