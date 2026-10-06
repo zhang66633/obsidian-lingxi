@@ -7,6 +7,7 @@
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"lint": "eslint .",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
@@ -20,10 +21,15 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
 		"@types/node": "^22.15.17",
 		"esbuild": "0.25.5",
+		"eslint": "^10.12.0",
+		"eslint-plugin-obsidianmd": "^0.4.2",
+		"globals": "^17.13.0",
 		"obsidian": "1.13.1",
 		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.71.1",
 		"vitest": "^3.2.4"
 	}
 }

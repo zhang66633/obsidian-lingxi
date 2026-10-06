@@ -6,6 +6,12 @@ import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import type LingxiPlugin from "../main";
 import { parseFolderList, folderListToText } from "../settings";
 
+/*
+ * 说明（对照官方 lint 的 prefer-setting-definitions warning）：
+ * 暂不迁移 1.13+ 声明式设置 API——它一旦启用就替代 display() 成为渲染路径，
+ * 而无 GUI 回归手段验证 13 个控件的渲染行为；display() 在 <1.13 也要保留。
+ * 迁移作为独立 phase 排期（docs/00-开发计划.md 已记），不在此版本冒险。
+ */
 export class LingxiSettingTab extends PluginSettingTab {
   private plugin: LingxiPlugin;
 
@@ -20,10 +26,10 @@ export class LingxiSettingTab extends PluginSettingTab {
     const t = (key: string) => this.plugin.t(key);
     const s = this.plugin.settings;
 
-    containerEl.createEl("h2", { text: t("settings.title") });
+    new Setting(containerEl).setName(t("settings.title")).setHeading();
 
     /* ---- 语言 ---- */
-    containerEl.createEl("h3", { text: t("settings.language") });
+    new Setting(containerEl).setName(t("settings.language")).setHeading();
     new Setting(containerEl)
       .setName(t("settings.language"))
       .addDropdown((dd) =>
@@ -39,7 +45,7 @@ export class LingxiSettingTab extends PluginSettingTab {
       );
 
     /* ---- 模型接入 ---- */
-    containerEl.createEl("h3", { text: t("settings.connection") });
+    new Setting(containerEl).setName(t("settings.connection")).setHeading();
     new Setting(containerEl)
       .setName(t("settings.baseUrl"))
       .setDesc(t("settings.baseUrl.desc"))
@@ -89,7 +95,7 @@ export class LingxiSettingTab extends PluginSettingTab {
       );
 
     /* ---- 上下文预算 ---- */
-    containerEl.createEl("h3", { text: t("settings.budget") });
+    new Setting(containerEl).setName(t("settings.budget")).setHeading();
     new Setting(containerEl)
       .setName(t("settings.maxInputTokens"))
       .addText((txt) =>
@@ -118,7 +124,6 @@ export class LingxiSettingTab extends PluginSettingTab {
         sl
           .setLimits(1, 20, 1)
           .setValue(s.topK)
-          .setDynamicTooltip()
           .onChange(async (v) => {
             s.topK = v;
             await this.plugin.saveSettings();
@@ -130,7 +135,6 @@ export class LingxiSettingTab extends PluginSettingTab {
         sl
           .setLimits(0, 1, 0.05)
           .setValue(s.temperature)
-          .setDynamicTooltip()
           .onChange(async (v) => {
             s.temperature = v;
             await this.plugin.saveSettings();
@@ -138,7 +142,7 @@ export class LingxiSettingTab extends PluginSettingTab {
       );
 
     /* ---- 索引与写入范围 ---- */
-    containerEl.createEl("h3", { text: t("settings.scope") });
+    new Setting(containerEl).setName(t("settings.scope")).setHeading();
     new Setting(containerEl)
       .setName(t("settings.excludeFolders"))
       .addTextArea((ta) => {
@@ -166,7 +170,6 @@ export class LingxiSettingTab extends PluginSettingTab {
         sl
           .setLimits(0.5, 0.99, 0.01)
           .setValue(s.similarityThreshold)
-          .setDynamicTooltip()
           .onChange(async (v) => {
             s.similarityThreshold = v;
             await this.plugin.saveSettings();

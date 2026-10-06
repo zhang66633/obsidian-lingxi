@@ -16,7 +16,6 @@ import { ChatView, CHAT_VIEW_TYPE } from "./obsidian/chatView";
 import { LingxiSettingTab } from "./obsidian/settingTab";
 
 const SYNC_DEBOUNCE_MS = 3000;
-const SESSIONS_PATH = ".obsidian/plugins/xi-qwen/sessions.json";
 
 export default class LingxiPlugin extends Plugin {
   settings: LingxiSettings = { ...DEFAULT_SETTINGS };
@@ -94,19 +93,20 @@ export default class LingxiPlugin extends Plugin {
     // 会话落盘（插件目录 sessions.json），损坏不阻塞启动
     this.sessions = new SessionStore(
       async (data) => {
-        await this.app.vault.adapter.write(SESSIONS_PATH, JSON.stringify(data));
+        await this.app.vault.adapter.write(this.sessionsPath(), JSON.stringify(data));
       },
       async () => {
-        if (!(await this.app.vault.adapter.exists(SESSIONS_PATH))) return null;
+        const path = this.sessionsPath();
+        if (!(await this.app.vault.adapter.exists(path))) return null;
         try {
-          return await this.app.vault.adapter.read(SESSIONS_PATH);
+          return await this.app.vault.adapter.read(path);
         } catch {
           return null;
         }
       },
     );
     await this.sessions.restore();
-    this.sessions.ensureActive(this.i18n.current === "zh" ? "note" : "note");
+    this.sessions.ensureActive();
 
     // 文件变动 → 防抖 3 秒增量同步（打字过程中不触发）
     const onVaultChange = (_file: TAbstractFile) => {
@@ -128,10 +128,16 @@ export default class LingxiPlugin extends Plugin {
     }
   }
 
+  /** 会话落盘路径：跟随用户可能自定义的 configDir（官方 lint 硬编码告警） */
+  private sessionsPath(): string {
+    return `${this.app.vault.configDir}/plugins/xi-qwen/sessions.json`;
+  }
+
   private setupIndexer(): void {
     this.indexerConfig = {
       baseUrl: this.settings.baseUrl,
       apiKey: this.settings.apiKey,
+      configDir: this.app.vault.configDir,
       chatModel: this.settings.chatModel,
       embeddingModel: this.settings.embeddingModel,
       excludeFolders: this.settings.excludeFolders,
@@ -176,8 +182,6 @@ export default class LingxiPlugin extends Plugin {
       });
       if (reason === "manual") {
         new Notice(this.indexStatus);
-      } else if (stats.embeddedNow > 0) {
-        console.info(`[lingxi] index updated: ${this.indexStatus}`);
       }
       return stats;
     } catch (err) {
@@ -205,7 +209,7 @@ export default class LingxiPlugin extends Plugin {
       leaf = workspace.getRightLeaf(false) ?? workspace.getLeaf(true);
       await leaf.setViewState({ type: CHAT_VIEW_TYPE, active: true });
     }
-    workspace.revealLeaf(leaf);
+    void workspace.revealLeaf(leaf);
   }
 
   /** 界面语言切换（zh <-> en），同步 settings 与索引器文案 */

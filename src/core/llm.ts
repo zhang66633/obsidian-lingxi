@@ -107,7 +107,8 @@ export function parseChatContent(json: unknown): string {
   if (detail !== undefined) {
     throw new LlmError(detail, 0, detail);
   }
-  const choices = (json as { choices?: Array<{ message?: { content?: unknown }; finish_reason?: unknown }> }).choices;
+  const choices = (json as { choices?: Array<{ message?: { content?: unknown }; finish_reason?: string | null }> })
+    .choices;
   const first = choices && choices[0];
   const content = first && first.message ? first.message.content : undefined;
   if (typeof content === "string") {

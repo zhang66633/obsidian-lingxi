@@ -30,7 +30,7 @@ export class OrganizePanel {
     c.empty();
     c.addClass("lingxi-organize");
 
-    const noteEl = c.createEl("div", { cls: "lingxi-org-current" });
+    const noteEl = c.createDiv( { cls: "lingxi-org-current" });
     const file = this.plugin.app.workspace.getActiveFile();
     noteEl.setText(`${this.t("organize.currentNote")}：${file ? file.path : this.t("organize.noNote")}`);
 
@@ -40,7 +40,7 @@ export class OrganizePanel {
     });
 
     this.section("organize.search", "organize.search.hint", (body) => {
-      const row = body.createEl("div", { cls: "lingxi-org-row" });
+      const row = body.createDiv( { cls: "lingxi-org-row" });
       const input = row.createEl("input", { cls: "lingxi-org-input", attr: { placeholder: this.t("organize.search.placeholder") } });
       const btn = row.createEl("button", { cls: "lingxi-mini-btn mod-cta", text: this.t("organize.search.run") });
       const go = () => void this.runSearch(body, input.value);
@@ -62,9 +62,9 @@ export class OrganizePanel {
   }
 
   private section(titleKey: string, descKey: string, build: (body: HTMLElement) => void): void {
-    const box = this.container.createEl("div", { cls: "lingxi-section" });
-    box.createEl("div", { cls: "lingxi-section-title", text: this.t(titleKey) });
-    box.createEl("div", { cls: "lingxi-section-desc", text: this.t(descKey) });
+    const box = this.container.createDiv( { cls: "lingxi-section" });
+    box.createDiv( { cls: "lingxi-section-title", text: this.t(titleKey) });
+    box.createDiv( { cls: "lingxi-section-desc", text: this.t(descKey) });
     build(box);
   }
 
@@ -72,7 +72,7 @@ export class OrganizePanel {
     this.busy = busy;
     for (const btn of Array.from(body.querySelectorAll<HTMLButtonElement>("button"))) btn.disabled = busy;
     if (busy && text) {
-      const status = body.createEl("div", { cls: "lingxi-section-status", text });
+      const status = body.createDiv( { cls: "lingxi-section-status", text });
       status.dataset.busy = "1";
     } else {
       for (const el of Array.from(body.querySelectorAll(".lingxi-section-status"))) el.remove();
@@ -90,11 +90,11 @@ export class OrganizePanel {
     onOpen: () => void,
     extra?: (row: HTMLElement) => void,
   ): void {
-    const row = body.createEl("div", { cls: "lingxi-result-row" });
+    const row = body.createDiv( { cls: "lingxi-result-row" });
     const main = row.createEl("button", { cls: "lingxi-result-main" });
-    main.createEl("span", { cls: "lingxi-result-label", text: label });
+    main.createSpan( { cls: "lingxi-result-label", text: label });
     if (score !== null) {
-      main.createEl("span", { cls: "lingxi-score", text: score.toFixed(2) });
+      main.createSpan( { cls: "lingxi-score", text: score.toFixed(2) });
     }
     main.addEventListener("click", onOpen);
     extra?.(row);
@@ -114,10 +114,10 @@ export class OrganizePanel {
       this.clearBusy(body);
       for (const el of Array.from(body.querySelectorAll(".lingxi-results"))) el.remove();
       if (list.length === 0) {
-        body.createEl("div", { cls: "lingxi-section-status", text: this.t("organize.related.none") });
+        body.createDiv( { cls: "lingxi-section-status", text: this.t("organize.related.none") });
         return;
       }
-      const box = body.createEl("div", { cls: "lingxi-results" });
+      const box = body.createDiv( { cls: "lingxi-results" });
       for (const item of list) {
         this.noteRow(box, item.path, item.score, () => this.openPath(item.path), (row) => {
           const ins = row.createEl("button", {
@@ -149,10 +149,10 @@ export class OrganizePanel {
       this.clearBusy(body);
       for (const el of Array.from(body.querySelectorAll(".lingxi-results"))) el.remove();
       if (hits.length === 0) {
-        body.createEl("div", { cls: "lingxi-section-status", text: this.t("organize.search.none") });
+        body.createDiv( { cls: "lingxi-section-status", text: this.t("organize.search.none") });
         return;
       }
-      const box = body.createEl("div", { cls: "lingxi-results" });
+      const box = body.createDiv( { cls: "lingxi-results" });
       for (const hit of hits) {
         const chunk = indexer.index.getChunk(hit.id);
         if (!chunk) continue;
@@ -181,18 +181,18 @@ export class OrganizePanel {
       this.clearBusy(body);
       for (const el of Array.from(body.querySelectorAll(".lingxi-results"))) el.remove();
       if (tags.length === 0) {
-        body.createEl("div", { cls: "lingxi-section-status", text: this.t("organize.tags.none") });
+        body.createDiv( { cls: "lingxi-section-status", text: this.t("organize.tags.none") });
         return;
       }
       const auto = this.inAutoFolder(file);
       if (auto) {
         // 白名单内：半自动直接应用
         for (const tag of tags) await this.applyTag(file, tag);
-        const box = body.createEl("div", { cls: "lingxi-results" });
-        box.createEl("div", { cls: "lingxi-section-status", text: `${this.t("organize.tags.applied")}：${tags.join(" ")}` });
+        const box = body.createDiv( { cls: "lingxi-results" });
+        box.createDiv( { cls: "lingxi-section-status", text: `${this.t("organize.tags.applied")}：${tags.join(" ")}` });
         return;
       }
-      const box = body.createEl("div", { cls: "lingxi-results lingxi-chips" });
+      const box = body.createDiv( { cls: "lingxi-results lingxi-chips" });
       for (const tag of tags) {
         const chip = box.createEl("button", { cls: "lingxi-chip", text: `#${tag}` });
         chip.setAttribute("title", this.t("organize.tags.apply"));
@@ -244,10 +244,10 @@ export class OrganizePanel {
       this.clearBusy(body);
       for (const el of Array.from(body.querySelectorAll(".lingxi-results"))) el.remove();
       if (pairs.length === 0) {
-        body.createEl("div", { cls: "lingxi-section-status", text: this.t("organize.dup.none") });
+        body.createDiv( { cls: "lingxi-section-status", text: this.t("organize.dup.none") });
         return;
       }
-      const box = body.createEl("div", { cls: "lingxi-results" });
+      const box = body.createDiv( { cls: "lingxi-results" });
       for (const pair of pairs.slice(0, 20)) {
         this.noteRow(box, `${pair.a} ↔ ${pair.b}`, pair.score, () => this.openPath(pair.a), (row) => {
           const open = row.createEl("button", { cls: "lingxi-mini-btn", text: this.t("organize.dup.openBoth") });

@@ -27,7 +27,7 @@ export class MultiFileModal extends Modal {
     contentEl.createEl("h3", { text: this.titleText });
 
     let query = "";
-    const listEl = contentEl.createEl("div", { cls: "lingxi-picker-list" });
+    const listEl = contentEl.createDiv( { cls: "lingxi-picker-list" });
 
     const renderList = () => {
       listEl.empty();
@@ -43,7 +43,7 @@ export class MultiFileModal extends Modal {
           if (cb.checked) this.chosen.add(file.path);
           else this.chosen.delete(file.path);
         });
-        row.createEl("span", { text: file.path });
+        row.createSpan( { text: file.path });
       }
     };
 
@@ -56,7 +56,7 @@ export class MultiFileModal extends Modal {
 
     renderList();
 
-    const btns = contentEl.createEl("div", { cls: "lingxi-modal-btns" });
+    const btns = contentEl.createDiv( { cls: "lingxi-modal-btns" });
     const cancel = btns.createEl("button", { text: "取消" });
     cancel.addEventListener("click", () => {
       this.chosen.clear();

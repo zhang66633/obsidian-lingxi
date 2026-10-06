@@ -262,6 +262,17 @@ describe("Phase 3 整理能力", () => {
     expect(vocab).not.toContain("不该统计");
   });
 
+  it("configDir 内容一律不进索引（哪怕没在排除列表里）", async () => {
+    const port = new FakePort();
+    seed(port, "a.md", 1, "# 标题\n关于注意力的内容 #注意力");
+    seed(port, "notes.md", 1, "# 配置目录里的文件 #不该统计");
+    const idx = new VaultIndexer(port, { ...baseCfg(), configDir: "notes.md" }, makeTransport());
+    const stats = await idx.syncAll();
+    expect(stats.files).toBe(1);
+    const vocab = await idx.tagVocabulary();
+    expect(vocab).toContain("注意力");
+    expect(vocab).not.toContain("不该统计");
+  });
   it("suggestTags：提示词带词表，解析模型返回的 JSON", async () => {
     const port = seeded();
     const t = {

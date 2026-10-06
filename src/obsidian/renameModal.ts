@@ -30,7 +30,7 @@ export class RenameModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.addClass("lingxi-modal");
-    contentEl.createEl("h3", { text: "重命名会话 / Rename session" });
+    contentEl.createEl("h3", { text: "重命名会话 / rename session" });
 
     const input = contentEl.createEl("input", { cls: "lingxi-org-input" });
     input.value = this.value;
@@ -48,12 +48,12 @@ export class RenameModal extends Modal {
         this.finish(null);
       }
     });
-    setTimeout(() => input.focus(), 50);
+    window.setTimeout(() => input.focus(), 50);
 
-    const btns = contentEl.createEl("div", { cls: "lingxi-modal-btns" });
-    const cancel = btns.createEl("button", { text: "取消 / Cancel" });
+    const btns = contentEl.createDiv( { cls: "lingxi-modal-btns" });
+    const cancel = btns.createEl("button", { text: "取消 / cancel" });
     cancel.addEventListener("click", () => this.finish(null));
-    const ok = btns.createEl("button", { cls: "mod-cta", text: "确定 / Save" });
+    const ok = btns.createEl("button", { cls: "mod-cta", text: "确定 / save" });
     ok.addEventListener("click", () => {
       const t = this.value.trim();
       this.finish(t === "" ? null : t);

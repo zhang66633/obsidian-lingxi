@@ -48,14 +48,14 @@ export class IntegratePanel {
     });
 
     this.section("integrate.merge", "integrate.merge.hint", (body) => {
-      const row = body.createEl("div", { cls: "lingxi-org-row" });
+      const row = body.createDiv( { cls: "lingxi-org-row" });
       const topic = row.createEl("input", { cls: "lingxi-org-input", attr: { placeholder: this.t("integrate.merge.topic") } });
       const btn = row.createEl("button", { cls: "lingxi-mini-btn mod-cta", text: this.t("integrate.merge.run") });
       btn.addEventListener("click", () => void this.runMerge(body, topic.value.trim() || undefined));
     });
 
     this.section("integrate.gaps", "integrate.gaps.hint", (body) => {
-      const row = body.createEl("div", { cls: "lingxi-org-row" });
+      const row = body.createDiv( { cls: "lingxi-org-row" });
       const input = row.createEl("input", { cls: "lingxi-org-input", attr: { placeholder: this.t("integrate.gaps.placeholder") } });
       const btn = row.createEl("button", { cls: "lingxi-mini-btn mod-cta", text: this.t("integrate.gaps.run") });
       const go = () => void this.runGaps(body, input.value);
@@ -67,9 +67,9 @@ export class IntegratePanel {
   }
 
   private section(titleKey: string, descKey: string, build: (body: HTMLElement) => void): void {
-    const box = this.container.createEl("div", { cls: "lingxi-section" });
-    box.createEl("div", { cls: "lingxi-section-title", text: this.t(titleKey) });
-    box.createEl("div", { cls: "lingxi-section-desc", text: this.t(descKey) });
+    const box = this.container.createDiv( { cls: "lingxi-section" });
+    box.createDiv( { cls: "lingxi-section-title", text: this.t(titleKey) });
+    box.createDiv( { cls: "lingxi-section-desc", text: this.t(descKey) });
     build(box);
   }
 
@@ -77,7 +77,7 @@ export class IntegratePanel {
     this.busy = busy;
     for (const btn of Array.from(body.querySelectorAll<HTMLButtonElement>("button"))) btn.disabled = busy;
     for (const el of Array.from(body.querySelectorAll(".lingxi-section-status"))) el.remove();
-    if (busy && text) body.createEl("div", { cls: "lingxi-section-status", text });
+    if (busy && text) body.createDiv( { cls: "lingxi-section-status", text });
   }
 
   private clearResults(body: HTMLElement): void {
@@ -113,12 +113,12 @@ export class IntegratePanel {
     try {
       const result: CompareResult = await runCompare(this.plugin.transport, this.insightCfg(), await this.noteInputs(picked));
       this.clearResults(body);
-      const box = body.createEl("div", { cls: "lingxi-results" });
+      const box = body.createDiv( { cls: "lingxi-results" });
       this.renderList(box, this.t("integrate.compare.consensus"), result.consensus);
       this.renderList(box, this.t("integrate.compare.divergence"), result.divergence);
       this.renderList(box, this.t("integrate.compare.complementary"), result.complementary);
       if (result.consensus.length + result.divergence.length + result.complementary.length === 0) {
-        box.createEl("div", { cls: "lingxi-section-status", text: this.t("integrate.empty") });
+        box.createDiv( { cls: "lingxi-section-status", text: this.t("integrate.empty") });
       } else {
         this.saveNoteButton(box, () => this.compareToMarkdown(result), this.t("integrate.compare.save"));
       }
@@ -131,7 +131,7 @@ export class IntegratePanel {
 
   private renderList(box: HTMLElement, title: string, items: string[]): void {
     if (items.length === 0) return;
-    box.createEl("div", { cls: "lingxi-result-heading", text: title });
+    box.createDiv( { cls: "lingxi-result-heading", text: title });
     const ul = box.createEl("ul", { cls: "lingxi-result-list" });
     for (const item of items) ul.createEl("li", { text: item });
   }
@@ -159,9 +159,9 @@ export class IntegratePanel {
     try {
       const draft = await runMerge(this.plugin.transport, this.insightCfg(), await this.noteInputs(picked), topic);
       this.clearResults(body);
-      const box = body.createEl("div", { cls: "lingxi-results" });
+      const box = body.createDiv( { cls: "lingxi-results" });
       if (draft === "") {
-        box.createEl("div", { cls: "lingxi-section-status", text: this.t("integrate.empty") });
+        box.createDiv( { cls: "lingxi-section-status", text: this.t("integrate.empty") });
         return;
       }
       const pre = box.createEl("pre", { cls: "lingxi-draft", text: draft });
@@ -205,14 +205,14 @@ export class IntegratePanel {
       const context = indexer && indexer.stats().vectors > 0 ? (await indexer.retrieve(question)).context.prompt : "";
       const result = await runGaps(this.plugin.transport, this.insightCfg(), question, context);
       this.clearResults(body);
-      const box = body.createEl("div", { cls: "lingxi-results" });
+      const box = body.createDiv( { cls: "lingxi-results" });
       if (context === "") {
-        box.createEl("div", { cls: "lingxi-section-status", text: this.t("rag.indexEmpty") });
+        box.createDiv( { cls: "lingxi-section-status", text: this.t("rag.indexEmpty") });
       }
       this.renderList(box, this.t("integrate.gaps.gaps"), result.gaps);
       this.renderList(box, this.t("integrate.gaps.nextSteps"), result.nextSteps);
       if (result.gaps.length + result.nextSteps.length === 0) {
-        box.createEl("div", { cls: "lingxi-section-status", text: this.t("integrate.empty") });
+        box.createDiv( { cls: "lingxi-section-status", text: this.t("integrate.empty") });
       }
     } catch (err) {
       new Notice(this.plugin.t("chat.failed") + ": " + (err instanceof Error ? err.message : String(err)));

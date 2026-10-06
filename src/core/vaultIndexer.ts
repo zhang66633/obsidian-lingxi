@@ -50,6 +50,8 @@ export interface IndexerConfig {
   contextPrefix?: string;
   /** 整理功能的语言（决定提示词语种） */
   language?: "zh" | "en";
+  /** Obsidian 配置目录（用户可自定义；其中的文件一律不进索引） */
+  configDir?: string;
   embedBatchSize?: number;
 }
 
@@ -117,11 +119,19 @@ export class VaultIndexer {
     }
   }
 
+  /** 路径排除：配置目录（用户可自定义）+ 用户设置的排除文件夹 */
+  private isExcludedPath(path: string): boolean {
+    if (this.cfg.configDir) {
+      const dir = this.cfg.configDir.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+      const p = path.replace(/\\/g, "/");
+      if (dir !== "" && (p === dir || p.startsWith(`${dir}/`))) return true;
+    }
+    return isExcluded(path, this.cfg.excludeFolders);
+  }
+
   /** 全量同步 + 增量 embedding。返回统计与本次新算向量数 */
   async syncAll(onProgress?: ProgressFn): Promise<IndexStats> {
-    const files = this.port
-      .listMarkdownFiles()
-      .filter((f) => !isExcluded(f.path, this.cfg.excludeFolders));
+    const files = this.port.listMarkdownFiles().filter((f) => !this.isExcludedPath(f.path));
 
     onProgress?.("sync", 0, files.length);
     const inputs: FileInputLite[] = [];
@@ -244,9 +254,7 @@ export class VaultIndexer {
 
   /** 全库标签词表（供标签建议优先复用） */
   async tagVocabulary(limit = 60): Promise<string[]> {
-    const files = this.port
-      .listMarkdownFiles()
-      .filter((f) => !isExcluded(f.path, this.cfg.excludeFolders));
+    const files = this.port.listMarkdownFiles().filter((f) => !this.isExcludedPath(f.path));
     const contents: string[] = [];
     for (const f of files) contents.push(await this.port.readNote(f.path));
     return extractTagVocabulary(contents, limit).map((v) => v.tag);

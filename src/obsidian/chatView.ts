@@ -9,7 +9,6 @@ import { chatCompletion } from "../core/llm";
 import type { ChatMessage } from "../core/llm";
 import type { Citation } from "../core/rag";
 import { sessionLabel } from "../core/sessions";
-import type { StoredMessage } from "../core/sessions";
 import { OrganizePanel } from "./organizePanel";
 import { IntegratePanel } from "./integratePanel";
 import { RenameModal } from "./renameModal";
@@ -64,8 +63,8 @@ export class ChatView extends ItemView {
     root.addClass("lingxi-root");
 
     /* ---- header ---- */
-    const header = root.createEl("div", { cls: "lingxi-header" });
-    header.createEl("span", { cls: "lingxi-title", text: this.plugin.t("view.title") });
+    const header = root.createDiv( { cls: "lingxi-header" });
+    header.createSpan( { cls: "lingxi-title", text: this.plugin.t("view.title") });
 
     const langBtn = header.createEl("button", { cls: "lingxi-icon-btn" });
     langBtn.setText(this.plugin.t("view.switchLang"));
@@ -85,11 +84,11 @@ export class ChatView extends ItemView {
     });
 
     /* ---- 会话栏 ---- */
-    this.sessionBarEl = root.createEl("div", { cls: "lingxi-session-bar" });
+    this.sessionBarEl = root.createDiv( { cls: "lingxi-session-bar" });
     this.renderSessionBar();
 
     /* ---- tabs ---- */
-    const tabs = root.createEl("div", { cls: "lingxi-tabs" });
+    const tabs = root.createDiv( { cls: "lingxi-tabs" });
     const tabChat = tabs.createEl("button", { cls: "lingxi-tab", text: this.plugin.t("tab.chat") });
     const tabOrg = tabs.createEl("button", { cls: "lingxi-tab", text: this.plugin.t("tab.organize") });
     const tabInt = tabs.createEl("button", { cls: "lingxi-tab", text: this.plugin.t("tab.integrate") });
@@ -104,7 +103,7 @@ export class ChatView extends ItemView {
     this.syncTabs();
 
     /* ---- body / footer ---- */
-    this.bodyEl = root.createEl("div", { cls: "lingxi-body" });
+    this.bodyEl = root.createDiv( { cls: "lingxi-body" });
     this.renderFooter(root);
     this.renderBody();
   }
@@ -114,7 +113,7 @@ export class ChatView extends ItemView {
     if (!bar) return;
     bar.empty();
 
-    const label = bar.createEl("span", { cls: "lingxi-session-label", text: this.plugin.t("sessions.label") });
+    const label = bar.createSpan( { cls: "lingxi-session-label", text: this.plugin.t("sessions.label") });
     void label;
 
     const sel = bar.createEl("select", { cls: "lingxi-session-select" });
@@ -180,11 +179,11 @@ export class ChatView extends ItemView {
   }
 
   private renderFooter(root: HTMLElement): void {
-    const footer = root.createEl("div", { cls: "lingxi-footer" });
+    const footer = root.createDiv( { cls: "lingxi-footer" });
     this.footerEl = footer;
 
-    const row = footer.createEl("div", { cls: "lingxi-context-row" });
-    row.createEl("span", { cls: "lingxi-context-label", text: this.plugin.t("context.label") });
+    const row = footer.createDiv( { cls: "lingxi-context-row" });
+    row.createSpan( { cls: "lingxi-context-label", text: this.plugin.t("context.label") });
     const sel = row.createEl("select", { cls: "lingxi-context-select" });
     sel.createEl("option", { text: this.plugin.t("context.note"), value: "note" });
     sel.createEl("option", { text: this.plugin.t("context.selection"), value: "selection" });
@@ -198,7 +197,7 @@ export class ChatView extends ItemView {
       if (s) this.plugin.sessions.setContextMode(s.id, mode);
     });
 
-    const inputRow = footer.createEl("div", { cls: "lingxi-input-row" });
+    const inputRow = footer.createDiv( { cls: "lingxi-input-row" });
     const input = inputRow.createEl("textarea", { cls: "lingxi-input" });
     input.setAttribute("rows", "2");
     input.setAttribute("placeholder", this.plugin.t("chat.placeholder"));
@@ -215,7 +214,7 @@ export class ChatView extends ItemView {
     send.addEventListener("click", () => void this.onSend());
     this.sendBtn = send;
 
-    const status = footer.createEl("div", { cls: "lingxi-status" });
+    const status = footer.createDiv( { cls: "lingxi-status" });
     this.statusEl = status;
   }
 
@@ -247,7 +246,7 @@ export class ChatView extends ItemView {
       this.messagesEl = null;
       return;
     }
-    this.messagesEl = this.bodyEl.createEl("div", { cls: "lingxi-messages" });
+    this.messagesEl = this.bodyEl.createDiv( { cls: "lingxi-messages" });
     for (const m of this.activeSession().messages) {
       this.appendMessageEl(m.role, m.content, m.citations);
     }
@@ -257,14 +256,14 @@ export class ChatView extends ItemView {
   private appendMessageEl(role: ChatMessage["role"], content: string, citations?: Citation[]): void {
     if (!this.messagesEl || !this.bodyEl) return;
     const isUser = role === "user";
-    const bubble = this.messagesEl.createEl("div", {
+    const bubble = this.messagesEl.createDiv( {
       cls: `lingxi-msg ${isUser ? "is-user" : "is-assistant"}`,
     });
-    bubble.createEl("div", {
+    bubble.createDiv( {
       cls: "lingxi-msg-who",
       text: isUser ? this.plugin.t("chat.you") : this.plugin.t("chat.lingxi"),
     });
-    bubble.createEl("div", { cls: "lingxi-msg-text", text: content });
+    bubble.createDiv( { cls: "lingxi-msg-text", text: content });
 
     if (!isUser && citations && citations.length > 0) {
       this.renderCitations(bubble, citations);
@@ -275,8 +274,8 @@ export class ChatView extends ItemView {
   /** 引用卡片：[n] 笔记名 › 标题，点击打开对应笔记 */
   private renderCitations(bubble: HTMLElement, citations: Citation[]): void {
     const indexer = this.plugin.indexer;
-    const box = bubble.createEl("div", { cls: "lingxi-citations" });
-    box.createEl("div", { cls: "lingxi-citations-title", text: this.plugin.t("chat.citations") });
+    const box = bubble.createDiv( { cls: "lingxi-citations" });
+    box.createDiv( { cls: "lingxi-citations-title", text: this.plugin.t("chat.citations") });
     for (const c of citations) {
       const chunk = indexer?.index.getChunk(c.chunkId);
       const chip = box.createEl("button", { cls: "lingxi-cite-chip" });

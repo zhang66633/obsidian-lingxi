@@ -40,7 +40,7 @@ export const DEFAULT_SETTINGS: LingxiSettings = {
   maxOutputTokens: 8192,
   topK: 8,
   temperature: 0.3,
-  excludeFolders: [".obsidian", ".trash", ".smart-env", ".git"],
+  excludeFolders: [".trash", ".smart-env", ".git"],
   autoOrganizeFolders: [],
   similarityThreshold: 0.82,
   contextBudgetTokens: 12000,
