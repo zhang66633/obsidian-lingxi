@@ -108,12 +108,14 @@ export default class LingxiPlugin extends Plugin {
     this.indexerConfig = {
       baseUrl: this.settings.baseUrl,
       apiKey: this.settings.apiKey,
+      chatModel: this.settings.chatModel,
       embeddingModel: this.settings.embeddingModel,
       excludeFolders: this.settings.excludeFolders,
       topK: this.settings.topK,
       similarityThreshold: this.settings.similarityThreshold,
       contextBudgetTokens: this.settings.contextBudgetTokens,
       contextPrefix: this.t("rag.context.prefix"),
+      language: this.i18n.current,
     };
     this.indexer = new VaultIndexer(new ObsidianVaultPort(this.app), this.indexerConfig, this.transport);
   }
@@ -124,6 +126,7 @@ export default class LingxiPlugin extends Plugin {
     if (this.indexerConfig) {
       this.indexerConfig.baseUrl = this.settings.baseUrl;
       this.indexerConfig.apiKey = this.settings.apiKey;
+      this.indexerConfig.chatModel = this.settings.chatModel;
       this.indexerConfig.embeddingModel = this.settings.embeddingModel;
       this.indexerConfig.excludeFolders = this.settings.excludeFolders;
       this.indexerConfig.topK = this.settings.topK;
@@ -188,6 +191,7 @@ export default class LingxiPlugin extends Plugin {
     this.settings.language = next;
     if (this.indexerConfig) {
       this.indexerConfig.contextPrefix = this.t("rag.context.prefix");
+      this.indexerConfig.language = next;
     }
     await this.saveSettings();
   }
