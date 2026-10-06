@@ -210,3 +210,80 @@ describe("VaultIndexer 全链路（mock 网关）", () => {
     expect(t.embedCalls).toBe(0);
   });
 });
+
+describe("Phase 3 整理能力", () => {
+  function cfgWithChat() {
+    return { ...baseCfg(), chatModel: "qwen3.8-27b", language: "zh" as const };
+  }
+
+  function seeded(): FakePort {
+    const port = new FakePort();
+    seed(port, "a.md", 1, "# 标题\n关于注意力的内容 #注意力");
+    seed(port, "b.md", 1, "# 另一篇\n还是注意力相关 #注意力");
+    seed(port, "c.md", 1, "# 别的\n完全无关的烹饪笔记");
+    return port;
+  }
+
+  it("relatedNotesFor：嵌入当前笔记 → 排除自身 → 按相关度降序", async () => {
+    const port = seeded();
+    const t = makeTransport();
+    const idx = new VaultIndexer(port, cfgWithChat(), t);
+    await idx.syncAll();
+    t.embedCalls = 0;
+    const rel = await idx.relatedNotesFor("a.md", { topN: 5 });
+    expect(t.embedCalls).toBe(1); // 现场嵌入当前笔记
+    expect(rel.some((r) => r.path === "a.md")).toBe(false); // 排除自身
+    const scores = rel.map((r) => r.score);
+    expect([...scores].sort((x, y) => y - x)).toEqual(scores);
+  });
+
+  it("relatedNotesFor：空库直接空", async () => {
+    const idx = new VaultIndexer(new FakePort(), cfgWithChat(), makeTransport());
+    expect(await idx.relatedNotesFor("a.md")).toEqual([]);
+  });
+
+  it("duplicates：找出高相似对（阈值可覆盖）", async () => {
+    const port = new FakePort();
+    // 两篇内容等长 → 假 embedding 完全一致 → 必然成对
+    seed(port, "a.md", 1, "同样的内容同样的内容");
+    seed(port, "b.md", 1, "同样的内容不同的内容");
+    const idx = new VaultIndexer(port, cfgWithChat(), makeTransport());
+    await idx.syncAll();
+    const pairs = idx.duplicates(0.5);
+    expect(pairs.some((p) => p.a === "a.md" && p.b === "b.md")).toBe(true);
+  });
+
+  it("tagVocabulary：全库统计（排除文件夹不计）", async () => {
+    const port = seeded();
+    seed(port, "模板/t.md", 1, "# 模板\n#不该统计");
+    const idx = new VaultIndexer(port, cfgWithChat(), makeTransport());
+    const vocab = await idx.tagVocabulary();
+    expect(vocab).toContain("注意力");
+    expect(vocab).not.toContain("不该统计");
+  });
+
+  it("suggestTags：提示词带词表，解析模型返回的 JSON", async () => {
+    const port = seeded();
+    const t = {
+      embedCalls: 0,
+      chatCalls: 0,
+      async postJson(url, _h, body) {
+        if (String(url).endsWith("/embeddings")) {
+          return { status: 200, ok: true, json: { data: [{ index: 0, embedding: [1, 0] }] } };
+        }
+        t.chatCalls++;
+        const msg = (body as { messages: Array<{ content: string }> }).messages.at(-1)?.content ?? "";
+        expect(msg).toContain("注意力"); // 词表进了提示词
+        return {
+          status: 200,
+          ok: true,
+          json: { choices: [{ message: { content: '["注意力","学习方法"]' } }] },
+        };
+      },
+    } as Transport & { embedCalls: number; chatCalls: number };
+    const idx = new VaultIndexer(port, cfgWithChat(), t);
+    const tags = await idx.suggestTags("a.md");
+    expect(tags).toEqual(["注意力", "学习方法"]);
+    expect(t.chatCalls).toBe(1);
+  });
+});

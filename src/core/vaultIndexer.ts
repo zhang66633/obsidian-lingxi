@@ -16,8 +16,12 @@ import type { VectorStoreData, VectorStore } from "./vectorStore";
 import { VectorStore as VectorStoreClass } from "./vectorStore";
 import { buildRagContext, retrieveTopK } from "./rag";
 import type { RagContext, RetrievalHit } from "./rag";
-import { embedTexts } from "./llm";
-import type { Transport } from "./llm";
+import { buildNoteVectors, findDuplicatePairs, relatedNotes as rankRelated } from "./related";
+import type { DuplicatePair, RelatedNote } from "./related";
+import { buildTagSystemPrompt, buildTagUserPrompt, extractTagVocabulary, parseTagSuggestions } from "./tagSuggest";
+import { chatCompletion, embedTexts } from "./llm";
+import { LlmError } from "./llm";
+import type { ChatMessage, Transport } from "./llm";
 
 export interface NoteFile {
   path: string;
@@ -35,6 +39,7 @@ export interface VaultPort {
 export interface IndexerConfig {
   baseUrl: string;
   apiKey: string;
+  chatModel: string;
   embeddingModel: string;
   excludeFolders: string[];
   topK: number;
@@ -43,6 +48,8 @@ export interface IndexerConfig {
   contextBudgetTokens: number;
   /** 拼上下文的引导句（随界面语言） */
   contextPrefix?: string;
+  /** 整理功能的语言（决定提示词语种） */
+  language?: "zh" | "en";
   embedBatchSize?: number;
 }
 
@@ -201,5 +208,66 @@ export class VaultIndexer {
       chunks: this.index.allChunks().length,
       vectors: this.store.size,
     };
+  }
+
+  /* ---------- Phase 3 整理能力 ---------- */
+
+  /** 单条文本向量化 */
+  async embedText(text: string): Promise<number[]> {
+    const [v] = await this.embedInputs([text]);
+    if (!v) throw new LlmError("embedding returned empty", 200);
+    return v;
+  }
+
+  /** 相关笔记：把当前笔记正文现场向量化，与库内代表向量比对 */
+  async relatedNotesFor(
+    notePath: string,
+    opts: { topN?: number; threshold?: number } = {},
+  ): Promise<RelatedNote[]> {
+    if (this.store.size === 0) return [];
+    const text = await this.port.readNote(notePath);
+    if (text.trim() === "") return [];
+    const query = await this.embedText(text.slice(0, 8000));
+    const notes = buildNoteVectors(this.index.allChunks(), this.store);
+    return rankRelated(query, notes, {
+      topN: opts.topN ?? 10,
+      threshold: opts.threshold ?? this.cfg.similarityThreshold,
+      excludePath: notePath,
+    });
+  }
+
+  /** 近似重复笔记对 */
+  duplicates(threshold?: number): DuplicatePair[] {
+    const notes = buildNoteVectors(this.index.allChunks(), this.store);
+    return findDuplicatePairs(notes, threshold ?? Math.min(0.95, this.cfg.similarityThreshold + 0.05));
+  }
+
+  /** 全库标签词表（供标签建议优先复用） */
+  async tagVocabulary(limit = 60): Promise<string[]> {
+    const files = this.port
+      .listMarkdownFiles()
+      .filter((f) => !isExcluded(f.path, this.cfg.excludeFolders));
+    const contents: string[] = [];
+    for (const f of files) contents.push(await this.port.readNote(f.path));
+    return extractTagVocabulary(contents, limit).map((v) => v.tag);
+  }
+
+  /** 给一篇笔记建议标签（优先词表内） */
+  async suggestTags(notePath: string, maxTags = 8): Promise<string[]> {
+    const text = await this.port.readNote(notePath);
+    if (text.trim() === "") return [];
+    const vocabulary = await this.tagVocabulary();
+    const lang = this.cfg.language ?? "zh";
+    const messages: ChatMessage[] = [
+      { role: "system", content: buildTagSystemPrompt(lang) },
+      { role: "user", content: buildTagUserPrompt(text, vocabulary, maxTags, lang) },
+    ];
+    const raw = await chatCompletion(
+      this.transport,
+      { baseUrl: this.cfg.baseUrl, apiKey: this.cfg.apiKey, chatModel: this.cfg.chatModel },
+      messages,
+      { temperature: 0.2, maxTokens: 512 },
+    );
+    return parseTagSuggestions(raw, { vocabulary, maxTags });
   }
 }
