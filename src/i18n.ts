@@ -129,6 +129,15 @@ const zh: Record<string, string> = {
   "integrate.picker.title": "选择笔记（可多选）",
   "integrate.created": "已创建笔记",
   "integrate.empty": "模型没有给出有效内容",
+
+  "sessions.label": "会话",
+  "sessions.new": "新建会话",
+  "sessions.rename": "重命名",
+  "sessions.delete": "删除",
+  "sessions.empty": "新会话",
+  "sessions.deleted": "会话已删除",
+  "sessions.renamed": "已重命名",
+  "sessions.count": "{n} 条消息",
 };
 
 const en: Record<string, string> = {
@@ -254,6 +263,15 @@ const en: Record<string, string> = {
   "integrate.picker.title": "Select notes (multi-select)",
   "integrate.created": "Note created",
   "integrate.empty": "The model returned nothing usable",
+
+  "sessions.label": "Sessions",
+  "sessions.new": "New session",
+  "sessions.rename": "Rename",
+  "sessions.delete": "Delete",
+  "sessions.empty": "New session",
+  "sessions.deleted": "Session deleted",
+  "sessions.renamed": "Renamed",
+  "sessions.count": "{n} messages",
 };
 
 export const DICT_ZH = zh;

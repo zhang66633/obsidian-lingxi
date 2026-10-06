@@ -1,8 +1,6 @@
 /**
  * 灵犀 Lingxi — 侧边栏视图（ItemView）
- * Phase 2：三种上下文范围（当前笔记 / 选中内容 / 全库检索），
- * 全库模式下回答带引用角标，点击来源卡片直达笔记。
- * 整理 / 整合 Tab 仍为占位（Phase 3/4）。
+ * Phase 5：会话管理（多会话/切换/重命名/删除/重启恢复）接入。
  */
 
 import { ItemView, WorkspaceLeaf, MarkdownView, Notice } from "obsidian";
@@ -10,24 +8,19 @@ import type LingxiPlugin from "../main";
 import { chatCompletion } from "../core/llm";
 import type { ChatMessage } from "../core/llm";
 import type { Citation } from "../core/rag";
+import { sessionLabel } from "../core/sessions";
+import type { StoredMessage } from "../core/sessions";
 import { OrganizePanel } from "./organizePanel";
 import { IntegratePanel } from "./integratePanel";
+import { RenameModal } from "./renameModal";
 
 export const CHAT_VIEW_TYPE = "lingxi-chat-view";
 
 type Tab = "chat" | "organize" | "integrate";
 type ContextMode = "note" | "selection" | "vault";
 
-interface RenderedMessage {
-  role: ChatMessage["role"];
-  content: string;
-  citations?: Citation[];
-}
-
 export class ChatView extends ItemView {
   private plugin: LingxiPlugin;
-  private history: ChatMessage[] = [];
-  private rendered: RenderedMessage[] = [];
   private busy = false;
   private activeTab: Tab = "chat";
   private contextMode: ContextMode = "note";
@@ -38,6 +31,8 @@ export class ChatView extends ItemView {
   private statusEl: HTMLElement | null = null;
   private bodyEl: HTMLElement | null = null;
   private footerEl: HTMLElement | null = null;
+  private sessionBarEl: HTMLElement | null = null;
+  private sessionSelect: HTMLSelectElement | null = null;
   private tabsBtn: Record<Tab, HTMLElement> | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: LingxiPlugin) {
@@ -57,6 +52,12 @@ export class ChatView extends ItemView {
     return "message-square";
   }
 
+  /* ---------- 会话便捷访问 ---------- */
+
+  private activeSession() {
+    return this.plugin.sessions.ensureActive(this.contextMode);
+  }
+
   async onOpen(): Promise<void> {
     const root = this.contentEl;
     root.empty();
@@ -69,8 +70,7 @@ export class ChatView extends ItemView {
     const langBtn = header.createEl("button", { cls: "lingxi-icon-btn" });
     langBtn.setText(this.plugin.t("view.switchLang"));
     langBtn.addEventListener("click", () => {
-      this.plugin.toggleLanguage();
-      this.render();
+      void this.plugin.toggleLanguage().then(() => this.render());
     });
 
     const gear = header.createEl("button", { cls: "lingxi-icon-btn" });
@@ -83,6 +83,10 @@ export class ChatView extends ItemView {
       setting.open();
       setting.openTabById("lingxi");
     });
+
+    /* ---- 会话栏 ---- */
+    this.sessionBarEl = root.createEl("div", { cls: "lingxi-session-bar" });
+    this.renderSessionBar();
 
     /* ---- tabs ---- */
     const tabs = root.createEl("div", { cls: "lingxi-tabs" });
@@ -105,6 +109,69 @@ export class ChatView extends ItemView {
     this.renderBody();
   }
 
+  private renderSessionBar(): void {
+    const bar = this.sessionBarEl;
+    if (!bar) return;
+    bar.empty();
+
+    const label = bar.createEl("span", { cls: "lingxi-session-label", text: this.plugin.t("sessions.label") });
+    void label;
+
+    const sel = bar.createEl("select", { cls: "lingxi-session-select" });
+    const sessions = this.plugin.sessions.list();
+    const activeId = this.plugin.sessions.active?.id ?? null;
+    for (const s of sessions) {
+      sel.createEl("option", { text: sessionLabel(s, this.plugin.t("sessions.empty")), value: s.id });
+    }
+    if (activeId) sel.value = activeId;
+    sel.addEventListener("change", () => {
+      const id = sel.value;
+      if (this.plugin.sessions.switchTo(id)) {
+        const s = this.plugin.sessions.active;
+        if (s) {
+          this.contextMode = s.contextMode;
+        }
+        this.render();
+      }
+    });
+    this.sessionSelect = sel;
+
+    const newBtn = bar.createEl("button", { cls: "lingxi-icon-btn", text: "＋" });
+    newBtn.setAttribute("title", this.plugin.t("sessions.new"));
+    newBtn.setAttribute("aria-label", this.plugin.t("sessions.new"));
+    newBtn.addEventListener("click", () => {
+      this.plugin.sessions.create(this.contextMode);
+      this.render();
+    });
+
+    const renameBtn = bar.createEl("button", { cls: "lingxi-icon-btn", text: "✎" });
+    renameBtn.setAttribute("title", this.plugin.t("sessions.rename"));
+    renameBtn.setAttribute("aria-label", this.plugin.t("sessions.rename"));
+    renameBtn.addEventListener("click", () => {
+      const s = this.plugin.sessions.active;
+      if (!s) return;
+      new RenameModal(this.app, s.title, (title) => {
+        if (title !== null) {
+          this.plugin.sessions.rename(s.id, title);
+          new Notice(this.plugin.t("sessions.renamed"));
+          this.renderSessionBar();
+        }
+      }).open();
+    });
+
+    const delBtn = bar.createEl("button", { cls: "lingxi-icon-btn", text: "🗑" });
+    delBtn.setAttribute("title", this.plugin.t("sessions.delete"));
+    delBtn.setAttribute("aria-label", this.plugin.t("sessions.delete"));
+    delBtn.addEventListener("click", () => {
+      const s = this.plugin.sessions.active;
+      if (!s) return;
+      if (this.plugin.sessions.remove(s.id)) {
+        new Notice(this.plugin.t("sessions.deleted"));
+        this.render();
+      }
+    });
+  }
+
   private syncTabs(): void {
     if (!this.tabsBtn) return;
     for (const [key, el] of Object.entries(this.tabsBtn) as Array<[Tab, HTMLElement]>) {
@@ -125,7 +192,10 @@ export class ChatView extends ItemView {
     sel.value = this.contextMode;
     sel.addEventListener("change", () => {
       const v = sel.value;
-      this.contextMode = v === "vault" ? "vault" : v === "selection" ? "selection" : "note";
+      const mode: ContextMode = v === "vault" ? "vault" : v === "selection" ? "selection" : "note";
+      this.contextMode = mode;
+      const s = this.plugin.sessions.active;
+      if (s) this.plugin.sessions.setContextMode(s.id, mode);
     });
 
     const inputRow = footer.createEl("div", { cls: "lingxi-input-row" });
@@ -149,7 +219,7 @@ export class ChatView extends ItemView {
     this.statusEl = status;
   }
 
-  /** 整块重建静态文案（语言切换时调用） */
+  /** 整块重建静态文案（语言切换用） */
   private render(): void {
     this.contentEl.empty();
     this.messagesEl = null;
@@ -158,6 +228,7 @@ export class ChatView extends ItemView {
     this.statusEl = null;
     this.bodyEl = null;
     this.footerEl = null;
+    this.sessionBarEl = null;
     this.tabsBtn = null;
     void this.onOpen();
   }
@@ -168,15 +239,19 @@ export class ChatView extends ItemView {
     this.footerEl.toggleClass("is-hidden", this.activeTab !== "chat");
     if (this.activeTab === "organize") {
       new OrganizePanel(this.bodyEl, this.plugin).render();
-    } else if (this.activeTab === "integrate") {
-      new IntegratePanel(this.bodyEl, this.plugin).render();
-    } else {
-      this.messagesEl = this.bodyEl.createEl("div", { cls: "lingxi-messages" });
-      for (const m of this.rendered) {
-        this.appendMessageEl(m.role, m.content, m.citations);
-      }
-      this.bodyEl.scrollTop = this.bodyEl.scrollHeight;
+      this.messagesEl = null;
+      return;
     }
+    if (this.activeTab === "integrate") {
+      new IntegratePanel(this.bodyEl, this.plugin).render();
+      this.messagesEl = null;
+      return;
+    }
+    this.messagesEl = this.bodyEl.createEl("div", { cls: "lingxi-messages" });
+    for (const m of this.activeSession().messages) {
+      this.appendMessageEl(m.role, m.content, m.citations);
+    }
+    this.bodyEl.scrollTop = this.bodyEl.scrollHeight;
   }
 
   private appendMessageEl(role: ChatMessage["role"], content: string, citations?: Citation[]): void {
@@ -249,17 +324,18 @@ export class ChatView extends ItemView {
       new Notice(this.plugin.t("err.noApiKey"));
       return;
     }
+    const sessions = this.plugin.sessions;
+    const session = sessions.ensureActive(this.contextMode);
 
-    this.rendered.push({ role: "user", content: question });
-    this.history.push({ role: "user", content: question });
+    sessions.append(session.id, { role: "user", content: question });
     this.appendMessageEl("user", question);
+    this.renderSessionBar();
     if (this.inputEl) this.inputEl.value = "";
 
     let citations: Citation[] = [];
     let contextBlock = "";
     try {
       if (this.contextMode === "vault") {
-        // 索引没建好就先建（空库时同步等待，界面上给状态）
         const stats = this.plugin.indexer?.stats();
         if (!stats || stats.vectors === 0) {
           this.setBusy(true, this.plugin.t("rag.rebuilding"));
@@ -290,7 +366,7 @@ export class ChatView extends ItemView {
 
     this.setBusy(true, this.plugin.t("chat.thinking"));
     try {
-      const prior = this.history.slice(-9, -1);
+      const prior = session.messages.slice(-9, -1);
       const messages: ChatMessage[] = [
         { role: "system", content: this.plugin.systemPrompt() },
         ...prior,
@@ -306,9 +382,9 @@ export class ChatView extends ItemView {
         messages,
         { temperature: settings.temperature, maxTokens: settings.maxOutputTokens },
       );
-      this.history.push({ role: "assistant", content: answer });
-      this.rendered.push({ role: "assistant", content: answer, citations });
+      sessions.append(session.id, { role: "assistant", content: answer, citations });
       this.appendMessageEl("assistant", answer, citations);
+      this.renderSessionBar();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       this.appendMessageEl("assistant", `${this.plugin.t("chat.failed")}: ${msg}`);

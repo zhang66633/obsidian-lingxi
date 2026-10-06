@@ -207,6 +207,32 @@
   border-color: var(--interactive-accent);
 }
 
+/* 会话栏 */
+.lingxi-session-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lingxi-session-label {
+  font-size: var(--font-ui-smallest);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.lingxi-session-select {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-ui-smallest);
+}
+
+.lingxi-session-bar .lingxi-icon-btn {
+  flex-shrink: 0;
+  font-size: var(--font-ui-smaller);
+}
+
 /* 整理面板 */
 .lingxi-organize {
   display: flex;

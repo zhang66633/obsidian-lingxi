@@ -9,18 +9,25 @@ import type { LingxiSettings } from "./settings";
 import type { Transport } from "./core/llm";
 import type { IndexerConfig, IndexStats } from "./core/vaultIndexer";
 import { VaultIndexer } from "./core/vaultIndexer";
+import { SessionStore } from "./core/sessions";
 import { requestUrlTransport, fetchModelIds } from "./obsidian/gateway";
 import { ObsidianVaultPort } from "./obsidian/obsidianVault";
 import { ChatView, CHAT_VIEW_TYPE } from "./obsidian/chatView";
 import { LingxiSettingTab } from "./obsidian/settingTab";
 
 const SYNC_DEBOUNCE_MS = 3000;
+const SESSIONS_PATH = ".obsidian/plugins/lingxi/sessions.json";
 
 export default class LingxiPlugin extends Plugin {
   settings: LingxiSettings = { ...DEFAULT_SETTINGS };
   i18n: I18n = new I18n("zh");
   transport: Transport = requestUrlTransport;
   indexer: VaultIndexer | null = null;
+  /** 聊天会话（多会话/切换/重命名/删除/重启恢复，落盘 sessions.json） */
+  sessions: SessionStore = new SessionStore(
+    async () => {},
+    async () => null,
+  );
 
   /** 索引器配置由本对象持有并随设置/语言更新（VaultIndexer 按引用读） */
   private indexerConfig: IndexerConfig | null = null;
@@ -83,6 +90,23 @@ export default class LingxiPlugin extends Plugin {
 
     this.setupIndexer();
     await this.indexer?.loadCache();
+
+    // 会话落盘（插件目录 sessions.json），损坏不阻塞启动
+    this.sessions = new SessionStore(
+      async (data) => {
+        await this.app.vault.adapter.write(SESSIONS_PATH, JSON.stringify(data));
+      },
+      async () => {
+        if (!(await this.app.vault.adapter.exists(SESSIONS_PATH))) return null;
+        try {
+          return await this.app.vault.adapter.read(SESSIONS_PATH);
+        } catch {
+          return null;
+        }
+      },
+    );
+    await this.sessions.restore();
+    this.sessions.ensureActive(this.i18n.current === "zh" ? "note" : "note");
 
     // 文件变动 → 防抖 3 秒增量同步（打字过程中不触发）
     const onVaultChange = (_file: TAbstractFile) => {
