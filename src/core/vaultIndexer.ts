@@ -178,8 +178,10 @@ export class VaultIndexer {
     await this.port.writeCache(JSON.stringify(data));
   }
 
-  /** 检索 + 装配上下文；库为空或全是低分命中时返回空 citations 的结果 */
+  /** 检索 + 装配上下文；库为空或全是低分命中时返回空 citations 的结果。
+   *  空库直接短路：不浪费一次 embedding 请求。 */
   async retrieve(question: string): Promise<{ hits: RetrievalHit[]; context: RagContext }> {
+    if (this.store.size === 0) return { hits: [], context: { prompt: "", citations: [] } };
     const [queryVector] = await this.embedInputs([question]);
     if (!queryVector) return { hits: [], context: { prompt: "", citations: [] } };
     const hits = retrieveTopK(queryVector, this.store, {

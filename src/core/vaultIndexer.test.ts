@@ -201,4 +201,12 @@ describe("VaultIndexer 全链路（mock 网关）", () => {
     expect(r2.hits).toEqual([]);
     expect(r2.context.prompt).toBe("");
   });
+
+  it("空库短路：retrieve 不发 embedding 请求", async () => {
+    const port = new FakePort();
+    const t = makeTransport();
+    const idx = new VaultIndexer(port, baseCfg(), t);
+    await idx.retrieve("任意");
+    expect(t.embedCalls).toBe(0);
+  });
 });
