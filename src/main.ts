@@ -36,7 +36,10 @@ export default class LingxiPlugin extends Plugin {
     this.registerView(CHAT_VIEW_TYPE, (leaf) => new ChatView(leaf, this));
     this.addSettingTab(new LingxiSettingTab(this.app, this));
 
-    this.addRibbonIcon("message-star", this.t("ribbon.tooltip"), () => {
+    // 注意：addRibbonIcon 的图标 id 必须是 lucide 真实存在的，无效 id 会直接抛异常
+    // 把整个 onload 打断、插件静默失效（2026-10 实测踩坑，obsidian-1.14.4.asar 验证）。
+    // message-star 在该版本不存在（0 命中），message-square 存在（72 命中）。
+    this.addRibbonIcon("message-square", this.t("ribbon.tooltip"), () => {
       void this.activateView();
     });
 
