@@ -14,7 +14,7 @@ Three tabs in one sidebar panel:
 
 | Tab | Tools | Writes to your notes? |
 |---|---|---|
-| **Chat 对话** | Vault-wide Q&A with `[1][2]` citation chips that jump to the source note and section; per-note anatomy (summary / key concepts / open questions); selection "Ask Lingxi" without leaving the note | No |
+| **Chat 对话** | Multi-session chat (new / switch / rename / delete, survives restarts; each session remembers its own context scope); vault-wide Q&A with `[1][2]` citation chips that jump to the source note and section; per-note anatomy (summary / key concepts / open questions); selection "Ask Lingxi" without leaving the note | No |
 | **Organize 整理** | Related notes (similarity-scored, one-click `[[link]]`), semantic search (chunk-level hits), tag suggestions (prefers your existing tag vocabulary), near-duplicate detection | Tag suggestions only — auto inside whitelisted folders, one click to apply elsewhere |
 | **Integrate 整合** | Compare 2–10 notes (consensus / divergence / complementary), merge notes into a structured draft with per-point sources, knowledge-gap analysis ("what is my vault missing to answer this?") | Only when you click "create note" |
 
@@ -71,7 +71,8 @@ MIT © Zhe
 
 **灵犀 Lingxi** 是一个住在 Obsidian 侧边栏里的双语 Qwen 助手，分三个标签页：
 
-- **对话**：全库问答，回答带 `[1][2]` 引用角标，点击直达来源笔记与段落；
+- **对话**：多会话管理（新建/切换/重命名/删除，重启后恢复，每个会话记住自己的上下文范围）；
+  全库问答，回答带 `[1][2]` 引用角标，点击直达来源笔记与段落；
   也可针对当前笔记做结构解剖，或对选中文字即问即答。
 - **整理**：相关笔记（带相似度，一键插入双链）、语义搜索（按段落命中）、
   标签建议（优先复用你已有的标签）、近似重复检测。
